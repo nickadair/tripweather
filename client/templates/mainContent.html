@@ -1,0 +1,7 @@
+<template name="mainContent">
+	{{#if isLocationKnown}}
+        {{> map}}
+    {{else}}
+        {{> zipInput}}
+    {{/if}}
+</template>
