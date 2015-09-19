@@ -1,0 +1,31 @@
+<head>
+  <title>tripweather</title>
+</head>
+
+<body>
+    {{> mainContent}}
+</body>
+
+<template name="mainContent">
+	{{#if isTrue}}
+        {{> map}}
+    {{else}}
+        {{> zipInput}}
+    {{/if}}
+</template>
+
+<template name="zipInput">
+	<h1>TripWeather!</h1>
+	<p>
+	Enter a US city and state (City, ST):
+	<input type="text" name="cityState1" id="cityState1" required="required" />
+	<input type="text" name="cityState1" id="cityState2" required="required" />
+	<input id="zipSubmit" name="zipSubmit" type="button"  value="Go!">
+	</p>
+</template>
+
+<template name="map">
+	<div class="map-container">
+         {{> googleMap name="mainMap" options=mainMapOptions}}
+    </div>
+</template>
