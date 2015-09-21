@@ -33,6 +33,7 @@
 		  Session.set('cityStateStart', document.getElementById('cityStateStart').value)
 		  Session.set('cityStateEnd', document.getElementById('cityStateEnd').value)
       GoogleMaps.load()
+      GoogleMaps.loadUtilityLibrary('v3_epoly.js')
     }
   })
 
@@ -52,7 +53,6 @@
 		  var cityStateStart = Session.get('cityStateStart')
 		  var cityStateEnd = Session.get('cityStateEnd')
       var locStart, locEnd = null
-      GoogleMaps.loadUtilityLibrary('/compatibility/v3_epoly.js')
 		  geocoder = new google.maps.Geocoder()
 
 	  	geocoder.geocode( { 'address': cityStateStart}, function(results, status) {
