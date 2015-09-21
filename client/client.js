@@ -33,7 +33,6 @@
 		  Session.set('cityStateStart', document.getElementById('cityStateStart').value)
 		  Session.set('cityStateEnd', document.getElementById('cityStateEnd').value)
       GoogleMaps.load()
-      GoogleMaps.loadUtilityLibrary('v3_epoly.js')
     }
   })
 
@@ -70,11 +69,6 @@
         }
         setMapBounds(locStart, locEnd, map)
         Session.set('mapLoaded', true)
-
-        var polyline = google.maps.Polyline()
-        var testLoc = polyline.GetPointAtDistance(250)
-        console.log(testLoc)
-        createMarker(map, testLoc, "Test")
 	  	})
 	  })
 	})
