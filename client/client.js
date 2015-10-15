@@ -16,6 +16,7 @@
     map.instance.fitBounds(bounds)
     createMarker(map, locStart, "Start")
     createMarker(map, locEnd, "Finish")
+    
   }
 
   Meteor.startup(function() {
