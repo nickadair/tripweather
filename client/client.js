@@ -32,7 +32,11 @@
 		  Session.set('zipEntered', true)
 		  Session.set('cityStateStart', document.getElementById('cityStateStart').value)
 		  Session.set('cityStateEnd', document.getElementById('cityStateEnd').value)
-      GoogleMaps.load()
+      if (Session.get('zipEntered')) {
+          GoogleMaps.load()
+      } else {
+        alert('Session not set')
+      }
     }
   })
 
