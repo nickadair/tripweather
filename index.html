@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>TripWeather!</title>
+    <meta name="viewport" content="initial-scale=1.0">
+    <meta charset="utf-8">
+    <script src="js/script.js"></script>
+    <link type="text/css" rel="stylesheet" href="css/style.css">
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJfosGhkACjtAFQH2Gx5f-vU1SZdm_90E&callback=initMap&libraries=geometry" async></script>
+  </head>
+  <body>
+    <div id="banner">
+        <img id="logo" src="img/twlogo.png">
+        <h1 id="sitename">Trip Weather</h1>
+        <p id="intro">Enter your starting and ending locations and when you're leaving, and we'll let you know what kind of weather you'll have along your drive!</p>
+    </div>
+    <div id="form-container">
+      <div id="form">
+          <form id="locationForm" name="locationForm" onsubmit="createInitialMarkers(); return false;">
+              <fieldset id="locationFields" name="locationFields">
+                  <legend>From / To / Leaving:</legend>
+                  <input type="text" id="from" name="from" placeholder="FROM: CITY, ST or ZIP" autofocus required>
+                  <input type="text" id="to" name="to" placeholder="TO: CITY, ST or ZIP" required>
+                  <select name="leaving-time" id="leaving-time">
+                    <option value="0" id="now">Leaving Now</option>
+                    <option value="2" id="2_hours">Leaving in 2 hours</option>
+                    <option value="8" id="8_hours">Leaving in 8 hours</option>
+                    <option value="12" id="12_hours">Leaving in 12 hours</option>
+                  </select>
+                  <input type="button" id="submit" name="submit" value="Go!" onclick="createInitialMarkers();">
+                  <!-- Hidden submit button to submit form on 'Enter' keypress -->
+                  <input  type="submit" name="update" value=" Apply" style="position: absolute; height: 0px; width: 0px; border: none; padding: 0px;" hidefocus="true" tabindex="-1" />
+              </fieldset>
+          </form>
+      </div>
+      <div id="information"></div>
+    </div>  
+    <div id="map"></div>
+    <div class="footer">
+      <div id="credit"><span>Icons provided by:</span><a target="_base" href="https://mapicons.mapsmarker.com"><img id="creditImage" src="img/miclogo.gif"></a></div>
+      <div id="copyright"><span>Copyright &copy; 2022 TripWeather</span></div>
+    </div>
+  </body>
+</html>
