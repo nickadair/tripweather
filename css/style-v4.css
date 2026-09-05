@@ -289,6 +289,7 @@ main {
 /* InfoWindow content */
 .tw-popup { max-width: 280px; font-size: 0.9rem; }
 .tw-popup h3 { margin: 0 0 0.4rem; font-size: 1rem; }
+.tw-popup .tw-place { color: var(--brand-dark); }
 .tw-popup img { float: left; margin: 0 0.5rem 0.3rem 0; }
 .tw-popup .tw-temp { font-weight: 700; }
 

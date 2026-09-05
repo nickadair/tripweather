@@ -193,16 +193,20 @@
       var text = p.shortForecast || "";
       var temp = (p.temperature != null ? p.temperature + "\u00B0" + (p.temperatureUnit || "F") : "");
       marker.setIcon(iconFor(text));
+      // Old-version format: "Day, time<br>location" all in the heading,
+      // so the place is prominent instead of trailing small print.
+      var days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      var day = days[new Date(marker.time).getDay()];
       var when = new Date(marker.time).toLocaleString();
       var where = entry.place || fallbackName || (lat.toFixed(2) + ", " + lng.toFixed(2));
-      var title = when + " : " + text + (temp ? " " + temp : "");
+      var title = day + ", " + when + " : " + text + (temp ? " " + temp : "");
       marker.setTitle(title);
       // Store popup HTML; single shared InfoWindow avoids dozens of open windows
       marker._popupHtml =
-        '<div class="tw-popup"><h3>' + escapeHtml(when) + "</h3>" +
+        '<div class="tw-popup"><h3>' + escapeHtml(day) + ", " + escapeHtml(when) +
+        '<br><span class="tw-place">' + escapeHtml(where) + "</span></h3>" +
         (p.icon ? '<img src="' + escapeHtml(p.icon) + '" alt="" width="54" height="54">' : "") +
-        "<div><span class='tw-temp'>" + escapeHtml(temp) + "</span> " + escapeHtml(text) + "<br>" +
-        "<span>" + escapeHtml(where) + "</span></div></div>";
+        "<div><span class='tw-temp'>" + escapeHtml(temp) + "</span> " + escapeHtml(text) + "</div></div>";
       marker.addListener("click", function () {
         infoWindow.setContent(marker._popupHtml);
         infoWindow.open(map, marker);
