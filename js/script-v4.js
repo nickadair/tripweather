@@ -71,6 +71,17 @@
     return !!(map && geocoder && directionsService && window.google && window.google.maps);
   }
 
+  // Restored from v1: "Leaving Now / in 2 / 8 / 12 hours" select.
+  function getLeavingOffsetHours() {
+    var sel = $("leaving");
+    var h = sel ? parseInt(sel.value, 10) : 0;
+    return isNaN(h) ? 0 : h;
+  }
+
+  function getDepartureTime() {
+    return Date.now() + getLeavingOffsetHours() * 3600 * 1000;
+  }
+
   function clearMarkers() {
     for (var i = 0; i < markers.length; i++) markers[i].setMap(null);
     markers = [];
@@ -185,20 +196,22 @@
     map.fitBounds(b);
   }
 
-  function showSummary(miles, hours, arrival) {
+  function showSummary(miles, hours, arrival, offsetH) {
     var card = $("summary");
     var main = $("summaryMain");
     if (!card || !main) return;
     var arrivalStr = arrival.toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
-    main.textContent = Math.round(miles) + " mi \u2022 " + hours.toFixed(1) + " hr drive \u2022 arrive ~" + arrivalStr;
+    var prefix = offsetH > 0 ? "Leave in " + offsetH + " hr \u2022 " : "";
+    main.textContent = prefix + Math.round(miles) + " mi \u2022 " + hours.toFixed(1) + " hr drive \u2022 arrive ~" + arrivalStr;
     card.hidden = false;
     var ph = $("mapPlaceholder");
     if (ph) ph.hidden = true;
   }
 
-  function routeAndMark() {
+  function routeAndMark(departBase) {
     setStatus("Finding route…", false, true);
     setBusy(true, "Finding route…");
+    var offsetH = getLeavingOffsetHours();
     var req = {
       origin: startMarker.getPosition(),
       destination: endMarker.getPosition(),
@@ -214,9 +227,9 @@
       var leg = response.routes[0].legs[0];
       var miles = leg.distance.value / 1609.344;
       var hours = leg.duration.value / 3600;
-      var arrival = new Date(Date.now() + leg.duration.value * 1000);
+      var arrival = new Date(departBase + leg.duration.value * 1000);
       endMarker.time = arrival.getTime();
-      showSummary(miles, hours, arrival);
+      showSummary(miles, hours, arrival, offsetH);
 
       // Markers spaced along route; log scale keeps long trips readable
       if (miles >= 5) {
@@ -225,7 +238,7 @@
         var stepMs = (leg.duration.value * 1000) / n;
         var path = response.routes[0].overview_path;
         var lastPos = startMarker.getPosition();
-        var t = Date.now();
+        var t = departBase;
         for (var i = 0; i < path.length; i++) {
           var segMi = google.maps.geometry.spherical.computeDistanceBetween(lastPos, path[i]) / 1609.344;
           if (segMi >= stepMi) {
@@ -268,14 +281,14 @@
     $("summary").hidden = true;
     setStatus("Looking up places…", false, true);
     setBusy(true, "Looking up places…");
-    var now = Date.now();
+    var depart = getDepartureTime();
     geocodeAddress(from).then(function (rFrom) {
       return geocodeAddress(to).then(function (rTo) { return { rFrom: rFrom, rTo: rTo }; });
     }).then(function (r) {
-      startMarker = addMarker(r.rFrom.geometry.location.lat(), r.rFrom.geometry.location.lng(), now);
-      endMarker = addMarker(r.rTo.geometry.location.lat(), r.rTo.geometry.location.lng(), now);
+      startMarker = addMarker(r.rFrom.geometry.location.lat(), r.rFrom.geometry.location.lng(), depart);
+      endMarker = addMarker(r.rTo.geometry.location.lat(), r.rTo.geometry.location.lng(), depart);
       fitBounds();
-      routeAndMark();
+      routeAndMark(depart);
     }).catch(function (err) {
       setBusy(false);
       var msg = String((err && err.message) || "");
