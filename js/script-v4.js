@@ -13,9 +13,13 @@
   var markers = [];
   var startMarker = null;
   var endMarker = null;
-  var forecastCache = new Map(); // "lat,lon" -> periods[]
+  var forecastCache = new Map(); // "lat,lon" -> { periods: [], place: "" }
 
   function $(id) { return document.getElementById(id); }
+
+  function shortLabel(address) {
+    return String(address || "").split(",").slice(0, 2).join(",").trim();
+  }
 
   function escapeHtml(s) {
     return String(s == null ? "" : s)
@@ -133,17 +137,24 @@
     return lat.toFixed(2) + "," + lng.toFixed(2);
   }
 
+  // Resolves per-coordinate forecast + place name. The /points response
+  // includes relativeLocation (city/state), so each marker gets its OWN
+  // location instead of sharing the route's start address.
   function fetchHourlyPeriods(lat, lng) {
     var key = cacheKey(lat, lng);
     if (forecastCache.has(key)) return Promise.resolve(forecastCache.get(key));
     var pointUrl = "https://api.weather.gov/points/" + lat.toFixed(4) + "," + lng.toFixed(4);
+    var entry = { periods: [], place: "" };
     return fetch(pointUrl, { headers: { Accept: "application/geo+json" } })
       .then(function (r) {
         if (!r.ok) throw new Error("outside US");
         return r.json();
       })
       .then(function (point) {
-        var hourlyUrl = point && point.properties && point.properties.forecastHourly;
+        var props = (point && point.properties) || {};
+        var rel = (props.relativeLocation && props.relativeLocation.properties) || {};
+        if (rel.city && rel.state) entry.place = rel.city + ", " + rel.state;
+        var hourlyUrl = props.forecastHourly;
         if (!hourlyUrl) throw new Error("no hourly");
         return fetch(hourlyUrl, { headers: { Accept: "application/geo+json" } });
       })
@@ -152,9 +163,9 @@
         return r.json();
       })
       .then(function (fc) {
-        var periods = (fc.properties && fc.properties.periods) || [];
-        forecastCache.set(key, periods);
-        return periods;
+        entry.periods = (fc.properties && fc.properties.periods) || [];
+        forecastCache.set(key, entry);
+        return entry;
       });
   }
 
@@ -170,16 +181,20 @@
     return best;
   }
 
-  function getWeather(marker, placeName) {
+  // fallbackName is only used when the weather API has no place for the
+  // coordinate (start/end markers pass the route's own addresses).
+  function getWeather(marker, fallbackName) {
     var lat = marker.getPosition().lat();
     var lng = marker.getPosition().lng();
-    fetchHourlyPeriods(lat, lng).then(function (periods) {
+    fetchHourlyPeriods(lat, lng).then(function (entry) {
+      var periods = entry.periods;
       var p = closestPeriod(periods, marker.time);
       if (!p) return;
       var text = p.shortForecast || "";
       var temp = (p.temperature != null ? p.temperature + "\u00B0" + (p.temperatureUnit || "F") : "");
       marker.setIcon(iconFor(text));
       var when = new Date(marker.time).toLocaleString();
+      var where = entry.place || fallbackName || (lat.toFixed(2) + ", " + lng.toFixed(2));
       var title = when + " : " + text + (temp ? " " + temp : "");
       marker.setTitle(title);
       // Store popup HTML; single shared InfoWindow avoids dozens of open windows
@@ -187,7 +202,7 @@
         '<div class="tw-popup"><h3>' + escapeHtml(when) + "</h3>" +
         (p.icon ? '<img src="' + escapeHtml(p.icon) + '" alt="" width="54" height="54">' : "") +
         "<div><span class='tw-temp'>" + escapeHtml(temp) + "</span> " + escapeHtml(text) + "<br>" +
-        "<span>" + escapeHtml(placeName || "") + "</span></div></div>";
+        "<span>" + escapeHtml(where) + "</span></div></div>";
       marker.addListener("click", function () {
         infoWindow.setContent(marker._popupHtml);
         infoWindow.open(map, marker);
@@ -258,8 +273,13 @@
       }
       setStatus("Checking weather along your route…", false, true);
       setBusy(true, "Checking weather…");
-      var label = (leg.start_address || "").split(",").slice(0, 2).join(",");
-      for (var j = 0; j < markers.length; j++) getWeather(markers[j], label);
+      // Start/end markers know their own addresses; intermediate stops use
+      // the weather API's per-coordinate place (or coordinates as fallback).
+      getWeather(startMarker, shortLabel(leg.start_address));
+      getWeather(endMarker, shortLabel(leg.end_address));
+      for (var j = 0; j < markers.length; j++) {
+        if (markers[j] !== startMarker && markers[j] !== endMarker) getWeather(markers[j]);
+      }
       // Weather fetches resolve async; release button after a beat so user can re-search
       setTimeout(function () {
         setBusy(false);
