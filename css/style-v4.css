@@ -29,32 +29,32 @@ body {
   flex-direction: column;
 }
 
-/* Header: one message only */
+/* Header: logo image carries the branding (white JPG, so white banner) */
 .banner {
-  background: var(--brand);
-  color: #fff;
-  padding: 0.75rem 1.25rem;
+  background: #fff;
+  padding: 0.6rem 1.25rem;
   display: flex;
   align-items: center;
-  gap: 0.9rem;
+  border-bottom: 1px solid var(--border);
 }
 
-.banner img {
-  height: 48px;
-  width: 48px;
+.banner-logo {
+  height: 64px;
+  width: auto;
+  max-width: 100%;
   flex: none;
 }
 
-.banner h1 {
-  font-size: 1.5rem;
-  margin: 0;
-  line-height: 1.1;
-}
-
-.banner p {
-  margin: 0.15rem 0 0;
-  font-size: 1rem;
-  opacity: 0.95;
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 main {
@@ -337,8 +337,7 @@ footer a { color: var(--muted); }
 
 /* Mobile: stack everything */
 @media (max-width: 640px) {
-  .banner img { height: 40px; width: 40px; }
-  .banner h1 { font-size: 1.3rem; }
+  .banner-logo { height: 48px; }
   main { padding: 0.75rem 0.75rem 1.5rem; }
   .search-row { flex-direction: column; align-items: stretch; }
   .swap-btn, .go-btn { width: 100%; margin-bottom: 0; }
