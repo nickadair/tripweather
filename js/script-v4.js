@@ -21,6 +21,26 @@
     return String(address || "").split(",").slice(0, 2).join(",").trim();
   }
 
+  function compass16(deg) {
+    var dirs = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
+                "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+    var d = (((deg % 360) + 360) % 360) / 22.5;
+    return dirs[Math.round(d) % 16];
+  }
+
+  // Old-version phrasing: "3 Miles NNE of Edgerton, WI". The /points
+  // response carries relativeLocation {city, state, distance (m), bearing (deg)}.
+  function formatPlace(rel) {
+    if (!rel || !rel.city || !rel.state) return "";
+    var cityState = rel.city + ", " + rel.state;
+    var miles = (rel.distance && typeof rel.distance.value === "number")
+      ? rel.distance.value / 1609.344 : NaN;
+    var bearing = (rel.bearing && typeof rel.bearing.value === "number")
+      ? rel.bearing.value : NaN;
+    if (isNaN(miles) || isNaN(bearing) || Math.round(miles) < 1) return cityState;
+    return Math.round(miles) + " Miles " + compass16(bearing) + " of " + cityState;
+  }
+
   function escapeHtml(s) {
     return String(s == null ? "" : s)
       .replace(/&/g, "&amp;")
@@ -153,7 +173,7 @@
       .then(function (point) {
         var props = (point && point.properties) || {};
         var rel = (props.relativeLocation && props.relativeLocation.properties) || {};
-        if (rel.city && rel.state) entry.place = rel.city + ", " + rel.state;
+        entry.place = formatPlace(rel);
         var hourlyUrl = props.forecastHourly;
         if (!hourlyUrl) throw new Error("no hourly");
         return fetch(hourlyUrl, { headers: { Accept: "application/geo+json" } });
