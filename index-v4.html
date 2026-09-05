@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>TripWeather! v4 — What weather will you drive through?</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="description" content="Enter two places and see the weather along your drive.">
+    <link rel="icon" href="favicon.ico">
+    <link type="text/css" rel="stylesheet" href="css/style-v4.css">
+    <script src="js/script-v4.js" defer></script>
+    <!-- Replace YOUR_GOOGLE_MAPS_KEY with a restricted key. Original v3 key intentionally not copied. -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_MAPS_KEY&callback=initMap&libraries=geometry" async defer></script>
+  </head>
+  <body>
+    <header class="banner">
+      <img src="img/TWLogo.png" alt="TripWeather logo">
+      <div>
+        <h1>TripWeather!</h1>
+        <p>What weather will you drive through?</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="search-card" aria-label="Plan your trip">
+        <form id="locationForm" novalidate>
+          <div class="search-row">
+            <div class="field">
+              <label for="from">From</label>
+              <input type="text" id="from" name="from" placeholder="e.g. Madison, WI"
+                     autocomplete="off" required aria-describedby="fromError" autofocus>
+              <span class="field-error" id="fromError" role="alert"></span>
+            </div>
+
+            <button type="button" id="swapBtn" class="swap-btn" title="Swap From and To" aria-label="Swap From and To">&#8646;</button>
+
+            <div class="field">
+              <label for="to">To</label>
+              <input type="text" id="to" name="to" placeholder="e.g. Chicago, IL"
+                     autocomplete="off" required aria-describedby="toError">
+              <span class="field-error" id="toError" role="alert"></span>
+            </div>
+
+            <button type="submit" id="goBtn" class="go-btn">Show weather &#8594;</button>
+          </div>
+        </form>
+
+        <div class="search-meta">
+          <p class="hint">Enter two places, press Enter. Example:</p>
+          <button type="button" class="link-btn" id="exampleBtn">Try Madison, WI &#8594; Chicago, IL</button>
+          <button type="button" class="link-btn" id="locateBtn">Use my location</button>
+        </div>
+        <p class="status" id="status" aria-live="polite"></p>
+      </section>
+
+      <section class="results" aria-label="Route and weather">
+        <div class="summary-card" id="summary" hidden>
+          <p class="summary-main" id="summaryMain"></p>
+          <ul class="legend" aria-label="Map legend">
+            <li><img src="img/icons/sunny.png" alt="">Clear</li>
+            <li><img src="img/icons/cloudy.png" alt="">Cloudy</li>
+            <li><img src="img/icons/rainy.png" alt="">Rain</li>
+            <li><img src="img/icons/snowy.png" alt="">Snow</li>
+            <li><img src="img/icons/thunderstorm.png" alt="">Storm</li>
+          </ul>
+        </div>
+
+        <div class="map-wrap">
+          <div id="map" role="application" aria-label="Map of your route with weather icons"></div>
+          <div class="map-placeholder" id="mapPlaceholder">
+            <div><strong>Your route + weather will appear here.</strong><br>Search above to start.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <span>TripWeather v4 &middot; Weather: api.weather.gov &middot; Icons: Map Icons Designer &middot; Original v3 files untouched.</span>
+    </footer>
+  </body>
+</html>
