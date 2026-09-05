@@ -287,11 +287,43 @@ main {
 .map-placeholder strong { color: var(--ink); }
 
 /* InfoWindow content */
-.tw-popup { max-width: 280px; font-size: 0.9rem; }
-.tw-popup h3 { margin: 0 0 0.4rem; font-size: 1rem; }
-.tw-popup .tw-place { color: var(--brand-dark); }
-.tw-popup img { float: left; margin: 0 0.5rem 0.3rem 0; }
-.tw-popup .tw-temp { font-weight: 700; }
+.tw-popup { max-width: 300px; min-width: 230px; font-size: 0.9rem; }
+.tw-popup .tw-where {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--brand-dark);
+  line-height: 1.25;
+}
+.tw-popup .tw-when {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0.1rem 0 0.55rem;
+}
+.tw-popup .tw-body {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+}
+.tw-popup .tw-body img {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  background: #eef3f8;
+  flex: none;
+}
+.tw-popup .tw-temp {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.tw-popup .tw-cond { font-size: 0.95rem; }
+.tw-popup .tw-meta {
+  margin-top: 0.55rem;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
 
 /* Footer: single muted line */
 footer {

@@ -222,11 +222,28 @@
       var title = day + ", " + when + " : " + text + (temp ? " " + temp : "");
       marker.setTitle(title);
       // Store popup HTML; single shared InfoWindow avoids dozens of open windows
+      var wind = p.windSpeed || "";
+      if (p.windDirection) wind += (wind ? " " : "") + p.windDirection;
+      var precip = (p.probabilityOfPrecipitation && p.probabilityOfPrecipitation.value != null)
+        ? p.probabilityOfPrecipitation.value + "% precip" : "";
+      var humid = (p.relativeHumidity && p.relativeHumidity.value != null)
+        ? p.relativeHumidity.value + "% humidity" : "";
+      var metaBits = [];
+      if (wind) metaBits.push(wind);
+      if (precip) metaBits.push(precip);
+      if (humid) metaBits.push(humid);
+      var meta = metaBits.join(" \u2022 ");
       marker._popupHtml =
-        '<div class="tw-popup"><h3>' + escapeHtml(day) + ", " + escapeHtml(when) +
-        '<br><span class="tw-place">' + escapeHtml(where) + "</span></h3>" +
-        (p.icon ? '<img src="' + escapeHtml(p.icon) + '" alt="" width="54" height="54">' : "") +
-        "<div><span class='tw-temp'>" + escapeHtml(temp) + "</span> " + escapeHtml(text) + "</div></div>";
+        '<div class="tw-popup">' +
+          '<div class="tw-where">' + escapeHtml(where) + "</div>" +
+          '<div class="tw-when">' + escapeHtml(day) + ", " + escapeHtml(when) + "</div>" +
+          '<div class="tw-body">' +
+            (p.icon ? '<img src="' + escapeHtml(p.icon) + '" alt="">' : "") +
+            '<div class="tw-main"><div class="tw-temp">' + escapeHtml(temp) + "</div>" +
+            '<div class="tw-cond">' + escapeHtml(text) + "</div></div>" +
+          "</div>" +
+          (meta ? '<div class="tw-meta">' + escapeHtml(meta) + "</div>" : "") +
+        "</div>";
       marker.addListener("click", function () {
         infoWindow.setContent(marker._popupHtml);
         infoWindow.open(map, marker);
