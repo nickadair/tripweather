@@ -59,7 +59,9 @@
       zoom: 6
     });
     geocoder = new google.maps.Geocoder();
-    directionsDisplay = new google.maps.DirectionsRenderer();
+    // suppressMarkers: true — otherwise the renderer draws its own A/B pins
+    // at the origin/destination that sit exactly on top of our weather icons.
+    directionsDisplay = new google.maps.DirectionsRenderer({ suppressMarkers: true });
     directionsDisplay.setMap(map);
     directionsService = new google.maps.DirectionsService();
     infoWindow = new google.maps.InfoWindow();
@@ -91,8 +93,14 @@
     if (directionsDisplay) directionsDisplay.setDirections({ routes: [] });
   }
 
-  function addMarker(lat, lng, timeMs) {
-    var m = new google.maps.Marker({ position: { lat: lat, lng: lng }, map: map });
+  function addMarker(lat, lng, timeMs, zIndex) {
+    var m = new google.maps.Marker({
+      position: { lat: lat, lng: lng },
+      map: map,
+      // Explicit stacking: later stops render above earlier ones instead of
+      // relying on the default latitude-based ordering when icons overlap.
+      zIndex: (typeof zIndex === "number") ? zIndex : markers.length + 1
+    });
     m.time = timeMs;
     m.setIcon("./img/icons/sunny.png");
     markers.push(m);
@@ -285,8 +293,8 @@
     geocodeAddress(from).then(function (rFrom) {
       return geocodeAddress(to).then(function (rTo) { return { rFrom: rFrom, rTo: rTo }; });
     }).then(function (r) {
-      startMarker = addMarker(r.rFrom.geometry.location.lat(), r.rFrom.geometry.location.lng(), depart);
-      endMarker = addMarker(r.rTo.geometry.location.lat(), r.rTo.geometry.location.lng(), depart);
+      startMarker = addMarker(r.rFrom.geometry.location.lat(), r.rFrom.geometry.location.lng(), depart, 1);
+      endMarker = addMarker(r.rTo.geometry.location.lat(), r.rTo.geometry.location.lng(), depart, 2);
       fitBounds();
       routeAndMark(depart);
     }).catch(function (err) {
