@@ -50,17 +50,26 @@
     btn.textContent = busy ? label || "Loading…" : "Show weather \u2192";
   }
 
-  // Google Maps entry point (global for ?callback=initMap)
-  window.initMap = function () {
+  // Google Maps entry point (global for ?callback=initMap).
+  // index-v4.html defines a window.initMap stub first to avoid the
+  // "initMap is not a function" race; the real init runs here.
+  function realInit() {
     map = new google.maps.Map($("map"), {
       center: { lat: 41.5, lng: -89.5 },
       zoom: 6
     });
     geocoder = new google.maps.Geocoder();
     directionsDisplay = new google.maps.DirectionsRenderer();
+    directionsDisplay.setMap(map);
     directionsService = new google.maps.DirectionsService();
     infoWindow = new google.maps.InfoWindow();
-  };
+  }
+  window.__twRealInit = realInit;
+  if (window.twMapsReady) realInit();
+
+  function mapsReady() {
+    return !!(map && geocoder && directionsService && window.google && window.google.maps);
+  }
 
   function clearMarkers() {
     for (var i = 0; i < markers.length; i++) markers[i].setMap(null);
@@ -196,7 +205,7 @@
       travelMode: google.maps.TravelMode.DRIVING
     };
     directionsService.route(req, function (response, status) {
-      if (status !== "OK" && status !== google.maps.DirectionsStatus.OK) {
+      if (status !== "OK") {
         setBusy(false);
         setStatus("Couldn't find a driving route. Try different places.", true, false);
         return;
@@ -247,6 +256,14 @@
     var to = $("to").value.trim();
     if (!from) { setFieldError("from", "fromError", "Enter a starting place."); $("from").focus(); return; }
     if (!to) { setFieldError("to", "toError", "Enter a destination."); $("to").focus(); return; }
+    if (window.twMapsAuthFailed) {
+      setStatus("Map key isn't authorized for this site. Add this URL to the key's HTTP referrers.", true, false);
+      return;
+    }
+    if (!mapsReady()) {
+      setStatus("Map is still loading… wait a second and try again.", true, false);
+      return;
+    }
     clearMarkers();
     $("summary").hidden = true;
     setStatus("Looking up places…", false, true);
@@ -293,6 +310,7 @@
     });
     var loc = $("locateBtn");
     if (loc) loc.addEventListener("click", function () {
+      if (!mapsReady()) { setStatus("Map is still loading… wait a second and try again.", true, false); return; }
       if (!navigator.geolocation) { setStatus("Your browser doesn't support location.", true, false); return; }
       setStatus("Using your location…", false, true);
       navigator.geolocation.getCurrentPosition(function (pos) {

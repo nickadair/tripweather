@@ -7,9 +7,29 @@
     <meta name="description" content="Enter two places and see the weather along your drive.">
     <link rel="icon" href="favicon.ico">
     <link type="text/css" rel="stylesheet" href="css/style-v4.css">
+    <script>
+      // Defined BEFORE the Google script so the ?callback=initMap race can't happen.
+      // The real implementation lives in js/script-v4.js as window.__twRealInit.
+      window.twMapsReady = false;
+      window.twMapsAuthFailed = false;
+      window.initMap = function () {
+        window.twMapsReady = true;
+        if (window.__twRealInit) window.__twRealInit();
+      };
+      window.gm_authFailure = function () {
+        window.twMapsAuthFailed = true;
+        var el = document.getElementById("status");
+        if (el) {
+          el.className = "status error";
+          el.textContent = "Map key isn't authorized for this site (RefererNotAllowedMapError). " +
+            "In Google Cloud Console > APIs & Services > Credentials, add this page's URL " +
+            "to the key's HTTP referrers, e.g. https://tripweather.co/*";
+        }
+      };
+    </script>
     <script src="js/script-v4.js" defer></script>
-    <!-- Replace YOUR_GOOGLE_MAPS_KEY with a restricted key. Original v3 key intentionally not copied. -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJfosGhkACjtAFQH2Gx5f-vU1SZdm_90E&callback=initMap&libraries=geometry" async defer></script>
+    <!-- loading=async silences the js-api-loading warning. Key restricted in Cloud Console. -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDJfosGhkACjtAFQH2Gx5f-vU1SZdm_90E&callback=initMap&libraries=geometry&loading=async" async defer></script>
   </head>
   <body>
     <header class="banner">

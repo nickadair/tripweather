@@ -1,7 +1,7 @@
-/* TripWeather v4 — simple, obvious UI. Keeps red/white branding. */
+/* TripWeather v4 — simple, obvious UI. Green banner. */
 :root {
-  --brand: #c11;
-  --brand-dark: #900;
+  --brand: #1e7e34;
+  --brand-dark: #155724;
   --ink: #222;
   --muted: #666;
   --bg: #f6f6f6;
